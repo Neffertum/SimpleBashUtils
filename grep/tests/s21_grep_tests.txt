@@ -1,0 +1,418 @@
+s21_grep.c:#include <stdio.h>
+s21_grep.c:#include <stdlib.h>
+s21_grep.c:#include <regex.h>
+s21_grep.c:#include <string.h>
+s21_grep.c:#include "s21_grep.h"
+s21_grep.c:
+s21_grep.c:int main(int argc, char *argv[]) {
+s21_grep.c:    if (output(argc, argv) == 1) {
+s21_grep.c:        printf("ERROR\n");
+s21_grep.c:    }
+s21_grep.c:    return 0;
+s21_grep.c:}
+s21_grep.c:
+s21_grep.c:int output(int argc, char **argv) {
+s21_grep.c:    int flag = 1;
+s21_grep.c:    int have_flag = 0;
+s21_grep.c:    struct flags myflags;
+s21_grep.c:    myflags.e = myflags.i = myflags.v = myflags.c = myflags.l =
+s21_grep.c:    myflags.n = myflags.h = myflags.s = myflags.f = myflags.o = 0;
+s21_grep.c:    FILE *file;
+s21_grep.c:    char temp[256];
+s21_grep.c:    int temp_place;
+s21_grep.c:    int start = 0;
+s21_grep.c:    if (argc > 2) {
+s21_grep.c:        flag = 0;
+s21_grep.c:            if (argv[i][0] == '-') {
+s21_grep.c:                have_flag++;
+s21_grep.c:                    if (argv[i][r] == 'e') {
+s21_grep.c:                        myflags.e = 1;
+s21_grep.c:                    }
+s21_grep.c:                    if (argv[i][r] == 'i') {
+s21_grep.c:                        myflags.i = 1;
+s21_grep.c:                    }
+s21_grep.c:                    if (argv[i][r] == 'v') {
+s21_grep.c:                        myflags.v = 1;
+s21_grep.c:                    }
+s21_grep.c:                    if (argv[i][r] == 'c') {
+s21_grep.c:                        myflags.c = 1;
+s21_grep.c:                    }
+s21_grep.c:                    if (argv[i][r] == 'l') {
+s21_grep.c:                        myflags.l = 1;
+s21_grep.c:                    }
+s21_grep.c:                    if (argv[i][r] == 'n') {
+s21_grep.c:                        myflags.n = 1;
+s21_grep.c:                    }
+s21_grep.c:                    if (argv[i][r] == 'h') {
+s21_grep.c:                        myflags.h = 1;
+s21_grep.c:                    }
+s21_grep.c:                    if (argv[i][r] == 's') {
+s21_grep.c:                        myflags.s = 1;
+s21_grep.c:                    }
+s21_grep.c:                    if (argv[i][r] == 'f') {
+s21_grep.c:                        myflags.f = 1;
+s21_grep.c:                        FILE *f_file = fopen(argv[i + 1], "r");
+s21_grep.c:                        if (!f_file) {
+s21_grep.c:                            printf("grep: %s: No such file or directory", argv[i + 1]);
+s21_grep.c:                            have_flag = -1;
+s21_grep.c:                            break;
+s21_grep.c:                        } else {
+s21_grep.c:                            temp_place = i + 1;
+s21_grep.c:                            char c = getc(f_file);
+s21_grep.c:                            int t;
+s21_grep.c:                                temp[t] = c;
+s21_grep.c:                                c = getc(f_file);
+s21_grep.c:                            }
+s21_grep.c:                            fclose(f_file);
+s21_grep.c:                            temp[t] = '\0';
+s21_grep.c:                        }
+s21_grep.c:                    }
+s21_grep.c:                    if (argv[i][r] == 'o') {
+s21_grep.c:                        myflags.o = 1;
+s21_grep.c:                    }
+s21_grep.c:                    if (argv[i][r] != 'e' && argv[i][r] != 'i' &&
+s21_grep.c:                    argv[i][r] != 'v' && argv[i][r] != 'c' &&
+s21_grep.c:                    argv[i][r] != 'l' && argv[i][r] != 'n' &&
+s21_grep.c:                    argv[i][r] != 'h' && argv[i][r] != 's' &&
+s21_grep.c:                    argv[i][r] != 'f' && argv[i][r] != 'o') {
+s21_grep.c:                        have_flag = -1;
+s21_grep.c:                        break;
+s21_grep.c:                    }
+s21_grep.c:                }
+s21_grep.c:            }
+s21_grep.c:        }
+s21_grep.c:    }
+s21_grep.c:    if (have_flag == -1 && myflags.f != 1) {
+s21_grep.c:        if (myflags.s != 1) {
+s21_grep.c:            printf("grep: %s: No such file or directory", argv[2]);
+s21_grep.c:        }
+s21_grep.c:    } else if (myflags.f != 1) {
+s21_grep.c:            if (((have_flag == 0) || (have_flag > 0 && start == 1)) &&
+s21_grep.c:            argv[i][0] != '-' && myflags.f != 1) {
+s21_grep.c:                size_t t = 0;
+s21_grep.c:                    temp[t] = argv[i][t];
+s21_grep.c:                }
+s21_grep.c:                temp[t] = '\0';
+s21_grep.c:                temp_place = i;
+s21_grep.c:                break;
+s21_grep.c:            }
+s21_grep.c:            if (argv[i][0] == '-') start = 1;
+s21_grep.c:        }
+s21_grep.c:    }
+s21_grep.c:    int count_file = 0;
+s21_grep.c:    if (flag == 0 && have_flag != -1) {
+s21_grep.c:        if (argc - have_flag - 2 > 1) {
+s21_grep.c:            count_file = 1;
+s21_grep.c:        }
+s21_grep.c:            if (argv[i][0] != '-' && i != temp_place) {
+s21_grep.c:                file = fopen(argv[i], "r");
+s21_grep.c:                if (!file) {
+s21_grep.c:                    if (myflags.s != 1) {
+s21_grep.c:                        printf("grep: %s: No such file or directory\n", argv[i]);
+s21_grep.c:                    }
+s21_grep.c:                } else {
+s21_grep.c:                    make_magic(myflags, file, temp, argv[i], count_file);
+s21_grep.c:                    fclose(file);
+s21_grep.c:                }
+s21_grep.c:            }
+s21_grep.c:        }
+s21_grep.c:    }
+s21_grep.c:    return flag;
+s21_grep.c:}
+s21_grep.c:
+s21_grep.c:int make_magic(struct flags myflags, FILE *file, char *temp, char *filename, int count_file) {
+s21_grep.c:    int find_flag = 1;
+s21_grep.c:    int success_flag = 0;
+s21_grep.c:    int count_str = 1;
+s21_grep.c:    int err = 1;
+s21_grep.c:    regex_t re[1];
+s21_grep.c:
+s21_grep.c:    size_t t_size = 0;
+s21_grep.c:    char *str = NULL;
+s21_grep.c:    regmatch_t o_flag;
+s21_grep.c:    size_t step = 0;
+s21_grep.c:
+s21_grep.c:    if (myflags.i == 1) {
+s21_grep.c:        err = regcomp(re, temp, REG_ICASE);
+s21_grep.c:    } else {
+s21_grep.c:        err = regcomp(re, temp, 0);
+s21_grep.c:    }
+s21_grep.c:
+s21_grep.c:    if (err == 0) {
+s21_grep.c:        while (getline(&str, &t_size, file) != -1) {
+s21_grep.c:            if (myflags.o == 1 && myflags.v != 1 &&
+s21_grep.c:            myflags.c != 1 && myflags.l != 1) {
+s21_grep.c:                while (regexec(re, str + step, 1, &o_flag, 0) == 0) {
+s21_grep.c:                    if (count_file == 1 && myflags.h != 1) {
+s21_grep.c:                        printf("%s:", filename);
+s21_grep.c:                    }
+s21_grep.c:                    if (myflags.n == 1 && step == 0) printf("%d:", count_str);
+s21_grep.c:                        printf("%c", str[o_flag.rm_so + i + step]);
+s21_grep.c:                    }
+s21_grep.c:                    printf("\n");
+s21_grep.c:                    step += o_flag.rm_eo;
+s21_grep.c:                }
+s21_grep.c:            } else {
+s21_grep.c:                find_flag = regexec(re, str, 0, NULL, 0);
+s21_grep.c:                if ((find_flag == 0 && myflags.v != 1) ||
+s21_grep.c:                (find_flag != 0 && myflags.v == 1)) {
+s21_grep.c:                    success_flag++;
+s21_grep.c:                    if (str[strlen(str) - 1] == '\n') {
+s21_grep.c:                    } else {
+s21_grep.c:                    }
+s21_grep.c:                }
+s21_grep.c:            }
+s21_grep.c:
+s21_grep.c:            if ((myflags.o != 1 || (myflags.o == 1 && myflags.v == 1))
+s21_grep.c:            && myflags.l != 1 && myflags.c != 1) {
+s21_grep.c:                if ((myflags.v == 1 && find_flag != 0) ||
+s21_grep.c:                (myflags.v != 1 && find_flag == 0)) {
+s21_grep.c:                    if (myflags.h != 1 && count_file == 1) {
+s21_grep.c:                        printf("%s:", filename);
+s21_grep.c:                    }
+s21_grep.c:                    if (myflags.n == 1) {
+s21_grep.c:                        printf("%d:", count_str);
+s21_grep.c:                    }
+s21_grep.c:                    printf("%s", str);
+s21_grep.c:                }
+s21_grep.c:            }
+s21_grep.c:
+s21_grep.c:            count_str++;
+s21_grep.c:            step = 0;
+s21_grep.c:        }
+s21_grep.c:        if (myflags.c == 1) {
+s21_grep.c:            if (count_file == 1 && myflags.h != 1) {
+s21_grep.c:                printf("%s:", filename);
+s21_grep.c:            }
+s21_grep.c:            if (myflags.l == 1) {
+s21_grep.c:                if (success_flag > 0) {
+s21_grep.c:                    printf("1\n");
+s21_grep.c:                } else {
+s21_grep.c:                    printf("0\n");
+s21_grep.c:                }
+s21_grep.c:            } else {
+s21_grep.c:                printf("%d\n", success_flag);
+s21_grep.c:            }
+s21_grep.c:        }
+s21_grep.c:        if (myflags.l == 1) {
+s21_grep.c:            if (success_flag > 0) {
+s21_grep.c:                printf("%s\n", filename);
+s21_grep.c:            }
+s21_grep.c:        }
+s21_grep.c:    }
+s21_grep.c:
+s21_grep.c:        printf("\n");
+s21_grep.c:    }
+s21_grep.c:    free(str);
+s21_grep.c:    regfree(re);
+s21_grep.c:    return 0;
+s21_grep.c:}
+s21_grep.c:#include <stdio.h>
+s21_grep.c:#include <stdlib.h>
+s21_grep.c:#include <regex.h>
+s21_grep.c:#include <string.h>
+s21_grep.c:#include "s21_grep.h"
+s21_grep.c:
+s21_grep.c:int main(int argc, char *argv[]) {
+s21_grep.c:    if (output(argc, argv) == 1) {
+s21_grep.c:        printf("ERROR\n");
+s21_grep.c:    }
+s21_grep.c:    return 0;
+s21_grep.c:}
+s21_grep.c:
+s21_grep.c:int output(int argc, char **argv) {
+s21_grep.c:    int flag = 1;
+s21_grep.c:    int have_flag = 0;
+s21_grep.c:    struct flags myflags;
+s21_grep.c:    myflags.e = myflags.i = myflags.v = myflags.c = myflags.l =
+s21_grep.c:    myflags.n = myflags.h = myflags.s = myflags.f = myflags.o = 0;
+s21_grep.c:    FILE *file;
+s21_grep.c:    char temp[256];
+s21_grep.c:    int temp_place;
+s21_grep.c:    int start = 0;
+s21_grep.c:    if (argc > 2) {
+s21_grep.c:        flag = 0;
+s21_grep.c:            if (argv[i][0] == '-') {
+s21_grep.c:                have_flag++;
+s21_grep.c:                    if (argv[i][r] == 'e') {
+s21_grep.c:                        myflags.e = 1;
+s21_grep.c:                    }
+s21_grep.c:                    if (argv[i][r] == 'i') {
+s21_grep.c:                        myflags.i = 1;
+s21_grep.c:                    }
+s21_grep.c:                    if (argv[i][r] == 'v') {
+s21_grep.c:                        myflags.v = 1;
+s21_grep.c:                    }
+s21_grep.c:                    if (argv[i][r] == 'c') {
+s21_grep.c:                        myflags.c = 1;
+s21_grep.c:                    }
+s21_grep.c:                    if (argv[i][r] == 'l') {
+s21_grep.c:                        myflags.l = 1;
+s21_grep.c:                    }
+s21_grep.c:                    if (argv[i][r] == 'n') {
+s21_grep.c:                        myflags.n = 1;
+s21_grep.c:                    }
+s21_grep.c:                    if (argv[i][r] == 'h') {
+s21_grep.c:                        myflags.h = 1;
+s21_grep.c:                    }
+s21_grep.c:                    if (argv[i][r] == 's') {
+s21_grep.c:                        myflags.s = 1;
+s21_grep.c:                    }
+s21_grep.c:                    if (argv[i][r] == 'f') {
+s21_grep.c:                        myflags.f = 1;
+s21_grep.c:                        FILE *f_file = fopen(argv[i + 1], "r");
+s21_grep.c:                        if (!f_file) {
+s21_grep.c:                            printf("grep: %s: No such file or directory", argv[i + 1]);
+s21_grep.c:                            have_flag = -1;
+s21_grep.c:                            break;
+s21_grep.c:                        } else {
+s21_grep.c:                            temp_place = i + 1;
+s21_grep.c:                            char c = getc(f_file);
+s21_grep.c:                            int t;
+s21_grep.c:                                temp[t] = c;
+s21_grep.c:                                c = getc(f_file);
+s21_grep.c:                            }
+s21_grep.c:                            fclose(f_file);
+s21_grep.c:                            temp[t] = '\0';
+s21_grep.c:                        }
+s21_grep.c:                    }
+s21_grep.c:                    if (argv[i][r] == 'o') {
+s21_grep.c:                        myflags.o = 1;
+s21_grep.c:                    }
+s21_grep.c:                    if (argv[i][r] != 'e' && argv[i][r] != 'i' &&
+s21_grep.c:                    argv[i][r] != 'v' && argv[i][r] != 'c' &&
+s21_grep.c:                    argv[i][r] != 'l' && argv[i][r] != 'n' &&
+s21_grep.c:                    argv[i][r] != 'h' && argv[i][r] != 's' &&
+s21_grep.c:                    argv[i][r] != 'f' && argv[i][r] != 'o') {
+s21_grep.c:                        have_flag = -1;
+s21_grep.c:                        break;
+s21_grep.c:                    }
+s21_grep.c:                }
+s21_grep.c:            }
+s21_grep.c:        }
+s21_grep.c:    }
+s21_grep.c:    if (have_flag == -1 && myflags.f != 1) {
+s21_grep.c:        if (myflags.s != 1) {
+s21_grep.c:            printf("grep: %s: No such file or directory", argv[2]);
+s21_grep.c:        }
+s21_grep.c:    } else if (myflags.f != 1) {
+s21_grep.c:            if (((have_flag == 0) || (have_flag > 0 && start == 1)) &&
+s21_grep.c:            argv[i][0] != '-' && myflags.f != 1) {
+s21_grep.c:                size_t t = 0;
+s21_grep.c:                    temp[t] = argv[i][t];
+s21_grep.c:                }
+s21_grep.c:                temp[t] = '\0';
+s21_grep.c:                temp_place = i;
+s21_grep.c:                break;
+s21_grep.c:            }
+s21_grep.c:            if (argv[i][0] == '-') start = 1;
+s21_grep.c:        }
+s21_grep.c:    }
+s21_grep.c:    int count_file = 0;
+s21_grep.c:    if (flag == 0 && have_flag != -1) {
+s21_grep.c:        if (argc - have_flag - 2 > 1) {
+s21_grep.c:            count_file = 1;
+s21_grep.c:        }
+s21_grep.c:            if (argv[i][0] != '-' && i != temp_place) {
+s21_grep.c:                file = fopen(argv[i], "r");
+s21_grep.c:                if (!file) {
+s21_grep.c:                    if (myflags.s != 1) {
+s21_grep.c:                        printf("grep: %s: No such file or directory\n", argv[i]);
+s21_grep.c:                    }
+s21_grep.c:                } else {
+s21_grep.c:                    make_magic(myflags, file, temp, argv[i], count_file);
+s21_grep.c:                    fclose(file);
+s21_grep.c:                }
+s21_grep.c:            }
+s21_grep.c:        }
+s21_grep.c:    }
+s21_grep.c:    return flag;
+s21_grep.c:}
+s21_grep.c:
+s21_grep.c:int make_magic(struct flags myflags, FILE *file, char *temp, char *filename, int count_file) {
+s21_grep.c:    int find_flag = 1;
+s21_grep.c:    int success_flag = 0;
+s21_grep.c:    int count_str = 1;
+s21_grep.c:    int err = 1;
+s21_grep.c:    regex_t re[1];
+s21_grep.c:
+s21_grep.c:    size_t t_size = 0;
+s21_grep.c:    char *str = NULL;
+s21_grep.c:    regmatch_t o_flag;
+s21_grep.c:    size_t step = 0;
+s21_grep.c:
+s21_grep.c:    if (myflags.i == 1) {
+s21_grep.c:        err = regcomp(re, temp, REG_ICASE);
+s21_grep.c:    } else {
+s21_grep.c:        err = regcomp(re, temp, 0);
+s21_grep.c:    }
+s21_grep.c:
+s21_grep.c:    if (err == 0) {
+s21_grep.c:        while (getline(&str, &t_size, file) != -1) {
+s21_grep.c:            if (myflags.o == 1 && myflags.v != 1 &&
+s21_grep.c:            myflags.c != 1 && myflags.l != 1) {
+s21_grep.c:                while (regexec(re, str + step, 1, &o_flag, 0) == 0) {
+s21_grep.c:                    if (count_file == 1 && myflags.h != 1) {
+s21_grep.c:                        printf("%s:", filename);
+s21_grep.c:                    }
+s21_grep.c:                    if (myflags.n == 1 && step == 0) printf("%d:", count_str);
+s21_grep.c:                        printf("%c", str[o_flag.rm_so + i + step]);
+s21_grep.c:                    }
+s21_grep.c:                    printf("\n");
+s21_grep.c:                    step += o_flag.rm_eo;
+s21_grep.c:                }
+s21_grep.c:            } else {
+s21_grep.c:                find_flag = regexec(re, str, 0, NULL, 0);
+s21_grep.c:                if ((find_flag == 0 && myflags.v != 1) ||
+s21_grep.c:                (find_flag != 0 && myflags.v == 1)) {
+s21_grep.c:                    success_flag++;
+s21_grep.c:                    if (str[strlen(str) - 1] == '\n') {
+s21_grep.c:                    } else {
+s21_grep.c:                    }
+s21_grep.c:                }
+s21_grep.c:            }
+s21_grep.c:
+s21_grep.c:            if ((myflags.o != 1 || (myflags.o == 1 && myflags.v == 1))
+s21_grep.c:            && myflags.l != 1 && myflags.c != 1) {
+s21_grep.c:                if ((myflags.v == 1 && find_flag != 0) ||
+s21_grep.c:                (myflags.v != 1 && find_flag == 0)) {
+s21_grep.c:                    if (myflags.h != 1 && count_file == 1) {
+s21_grep.c:                        printf("%s:", filename);
+s21_grep.c:                    }
+s21_grep.c:                    if (myflags.n == 1) {
+s21_grep.c:                        printf("%d:", count_str);
+s21_grep.c:                    }
+s21_grep.c:                    printf("%s", str);
+s21_grep.c:                }
+s21_grep.c:            }
+s21_grep.c:
+s21_grep.c:            count_str++;
+s21_grep.c:            step = 0;
+s21_grep.c:        }
+s21_grep.c:        if (myflags.c == 1) {
+s21_grep.c:            if (count_file == 1 && myflags.h != 1) {
+s21_grep.c:                printf("%s:", filename);
+s21_grep.c:            }
+s21_grep.c:            if (myflags.l == 1) {
+s21_grep.c:                if (success_flag > 0) {
+s21_grep.c:                    printf("1\n");
+s21_grep.c:                } else {
+s21_grep.c:                    printf("0\n");
+s21_grep.c:                }
+s21_grep.c:            } else {
+s21_grep.c:                printf("%d\n", success_flag);
+s21_grep.c:            }
+s21_grep.c:        }
+s21_grep.c:        if (myflags.l == 1) {
+s21_grep.c:            if (success_flag > 0) {
+s21_grep.c:                printf("%s\n", filename);
+s21_grep.c:            }
+s21_grep.c:        }
+s21_grep.c:    }
+s21_grep.c:
+s21_grep.c:        printf("\n");
+s21_grep.c:    }
+s21_grep.c:    free(str);
+s21_grep.c:    regfree(re);
+s21_grep.c:    return 0;
+s21_grep.c:}
